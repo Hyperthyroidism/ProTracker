@@ -4,10 +4,6 @@
   <img src="assets/framework.png" width="900">
 </p>
 
-<p align="center">
-  <b>Overall framework of ProTracker.</b>
-</p>
-
 ProTracker is a prompt-oriented multi-object vessel tracking framework designed for UAV-based waterway scenes. It integrates vessel detection, graph-based prompt optimization, target-aware refinement, and SAM2-based video segmentation to achieve robust and fine-grained multi-vessel tracking under challenging conditions such as dense vessel distribution, small targets, occlusion, water reflection, and complex illumination.
 
 ## Overview
