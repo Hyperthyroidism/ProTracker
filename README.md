@@ -1,5 +1,13 @@
 # ProTracker: Prompt-Optimized Multi-Vessel Tracking for UAV Videos
 
+<p align="center">
+  <img src="assets/framework.png" width="900">
+</p>
+
+<p align="center">
+  <b>Overall framework of ProTracker.</b>
+</p>
+
 ProTracker is a prompt-oriented multi-object vessel tracking framework designed for UAV-based waterway scenes. It integrates vessel detection, graph-based prompt optimization, target-aware refinement, and SAM2-based video segmentation to achieve robust and fine-grained multi-vessel tracking under challenging conditions such as dense vessel distribution, small targets, occlusion, water reflection, and complex illumination.
 
 ## Overview
@@ -9,14 +17,6 @@ Existing multi-object tracking methods usually rely on detection boxes and handc
 To address these problems, ProTracker introduces a prompt-optimized tracking pipeline. The framework first detects vessel candidates using a YOLO-based detector, then constructs a graph structure to model temporal and spatial relationships between vessel candidates. A graph-based cascaded prompt optimizer is used to enhance node representations and dynamically refine edge features. The optimized prompts are then used to guide SAM2 for fine-grained vessel segmentation and tracking.
 
 ## Framework
-
-<p align="center">
-  <img src="assets/framework.png" width="900">
-</p>
-
-<p align="center">
-  <b>Overall framework of ProTracker.</b>
-</p>
 
 The overall pipeline of ProTracker contains four main components:
 
