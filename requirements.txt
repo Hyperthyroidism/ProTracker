@@ -1,0 +1,49 @@
+# Basic scientific computing
+numpy
+scipy
+pandas
+tqdm
+matplotlib
+Pillow
+opencv-python
+PyYAML
+
+# Deep learning framework
+torch
+torchvision
+
+# YOLO detector
+ultralytics
+
+# Graph neural network dependencies
+torch-geometric
+torch-scatter
+torch-sparse
+torch-cluster
+torch-spline-conv
+
+# Tracking and assignment
+lap
+filterpy
+scikit-learn
+motmetrics
+
+# SAM2 and segmentation-related dependencies
+hydra-core
+omegaconf
+iopath
+pycocotools
+
+# Video and image processing
+imageio
+imageio-ffmpeg
+av
+
+# Experiment and logging
+tensorboard
+wandb
+
+# Utilities
+einops
+termcolor
+tabulate

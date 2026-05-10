@@ -1,0 +1,144 @@
+# ProTracker testing and inference configuration
+# This file is used for testing ProTracker on Vessel-MOT or running inference on a single UAV video.
+
+project:
+  name: ProTracker
+  task: multi_vessel_tracking
+  seed: 42
+  device: cuda
+
+dataset:
+  name: Vessel-MOT
+  root: datasets/Vessel-MOT
+
+  test:
+    image_dir: datasets/Vessel-MOT/images/test
+    label_dir: datasets/Vessel-MOT/labels/test
+    annotation_file: datasets/Vessel-MOT/annotations/test.json
+
+  video_dir: datasets/Vessel-MOT/videos
+  num_classes: 1
+  class_names:
+    - vessel
+
+input:
+  mode: video
+  video_path: assets/demo.mp4
+  image_dir: null
+  frame_interval: 1
+
+detector:
+  name: YOLO11
+  enabled: true
+  model_path: weights/yolo11/yolo11_vessel.pt
+  image_size: 640
+  confidence_threshold: 0.25
+  nms_threshold: 0.70
+  device: cuda
+
+  save_detection_results: true
+  detection_result_dir: results/detections
+
+graph_prompt_optimizer:
+  name: Graph-based Cascaded Prompt Optimizer
+  enabled: true
+  checkpoint_path: weights/protracker/protracker.pth
+
+  graph:
+    node_feature_dim: 256
+    edge_feature_dim: 32
+    hidden_dim: 128
+    max_temporal_distance: 30
+    max_neighbors: 10
+    use_motion_feature: true
+    use_position_feature: true
+    use_appearance_feature: true
+    use_reid_feature: false
+
+  message_passing:
+    num_steps: 6
+    node_agg_fn: mean
+    reattach_initial_nodes: true
+    reattach_initial_edges: true
+    dropout: 0.0
+    use_batchnorm: false
+
+  transformer_encoder:
+    enabled: true
+    d_model: 256
+    heads: 8
+    dropout: 0.0
+    norm_first: false
+
+  edge_attention:
+    enabled: true
+    negative_slope: 0.2
+    activation: sigmoid
+
+  time_aware_node_update:
+    enabled: true
+    use_flow_in: true
+    use_flow_out: true
+
+target_refinement:
+  name: Target-aware Refinement Module
+  enabled: true
+  min_box_area: 16
+  expand_ratio: 1.15
+  refine_small_targets: true
+  refine_occluded_targets: true
+  supplement_missing_targets: true
+
+sam2:
+  enabled: true
+  model_type: sam2_hiera_large
+  config_path: external/sam2/configs/sam2_hiera_l.yaml
+  checkpoint_path: weights/sam2/sam2_hiera_large.pt
+  prompt_type: box
+  use_mask_prompt: true
+  memory_enabled: true
+  device: cuda
+
+tracking:
+  association_metric: graph_score
+  association_threshold: 0.5
+  max_lost_frames: 30
+  min_track_length: 3
+
+  use_sam2_mask: true
+  output_format: mot
+  save_mot_results: true
+  result_dir: results/test
+
+visualization:
+  enabled: true
+  show_box: true
+  show_mask: true
+  show_track_id: true
+  show_confidence: false
+  line_width: 2
+  output_video: results/demo_vis.mp4
+
+evaluation:
+  enabled: true
+  gt_dir: datasets/Vessel-MOT/annotations/test
+  pred_dir: results/test
+  metrics:
+    - MOTA
+    - HOTA
+    - IDF1
+    - DetA
+    - AssA
+    - IDSW
+    - MT
+    - ML
+
+runtime:
+  use_half_precision: false
+  cudnn_benchmark: true
+  num_workers: 4
+
+logging:
+  log_dir: logs/test
+  print_interval: 20
+  save_log: true

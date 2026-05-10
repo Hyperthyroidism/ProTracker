@@ -1,0 +1,169 @@
+# ProTracker training configuration
+# This file is used to train the graph-based cascaded prompt optimizer
+# and related tracking modules on the Vessel-MOT dataset.
+
+project:
+  name: ProTracker
+  task: multi_vessel_tracking
+  description: Prompt-optimized multi-vessel tracking for UAV-based waterway scenes
+  seed: 42
+  device: cuda
+
+dataset:
+  name: Vessel-MOT
+  root: datasets/Vessel-MOT
+
+  train:
+    image_dir: datasets/Vessel-MOT/images/train
+    label_dir: datasets/Vessel-MOT/labels/train
+    annotation_file: datasets/Vessel-MOT/annotations/train.json
+
+  val:
+    image_dir: datasets/Vessel-MOT/images/val
+    label_dir: datasets/Vessel-MOT/labels/val
+    annotation_file: datasets/Vessel-MOT/annotations/val.json
+
+  video_dir: datasets/Vessel-MOT/videos
+  num_classes: 1
+  class_names:
+    - vessel
+
+detector:
+  name: YOLO11
+  enabled: true
+  model_path: weights/yolo11/yolo11_vessel.pt
+  image_size: 640
+  confidence_threshold: 0.25
+  nms_threshold: 0.70
+  device: cuda
+
+  # Detection results will be converted into tracking candidates.
+  output_format: mot
+  save_detection_results: true
+  detection_result_dir: results/detections
+
+graph_prompt_optimizer:
+  name: Graph-based Cascaded Prompt Optimizer
+  enabled: true
+
+  graph:
+    node_feature_dim: 256
+    edge_feature_dim: 32
+    hidden_dim: 128
+    max_temporal_distance: 30
+    max_neighbors: 10
+    use_motion_feature: true
+    use_position_feature: true
+    use_appearance_feature: true
+    use_reid_feature: false
+
+  message_passing:
+    num_steps: 6
+    node_agg_fn: mean
+    reattach_initial_nodes: true
+    reattach_initial_edges: true
+    dropout: 0.1
+    use_batchnorm: false
+
+  transformer_encoder:
+    enabled: true
+    d_model: 256
+    heads: 8
+    dropout: 0.1
+    norm_first: false
+
+  edge_attention:
+    enabled: true
+    negative_slope: 0.2
+    activation: sigmoid
+
+  time_aware_node_update:
+    enabled: true
+    use_flow_in: true
+    use_flow_out: true
+
+  classifier:
+    edge_classifier_hidden_dim: 128
+    output_dim: 1
+    loss: focal_loss
+    focal_gamma: 1.0
+
+target_refinement:
+  name: Target-aware Refinement Module
+  enabled: true
+  min_box_area: 16
+  expand_ratio: 1.15
+  refine_small_targets: true
+  refine_occluded_targets: true
+  supplement_missing_targets: true
+
+sam2:
+  enabled: true
+  model_type: sam2_hiera_large
+  config_path: external/sam2/configs/sam2_hiera_l.yaml
+  checkpoint_path: weights/sam2/sam2_hiera_large.pt
+  prompt_type: box
+  use_mask_prompt: true
+  memory_enabled: true
+  device: cuda
+
+tracking:
+  association_metric: graph_score
+  association_threshold: 0.5
+  max_lost_frames: 30
+  min_track_length: 3
+  save_mot_results: true
+  result_dir: results/train
+
+training:
+  epochs: 200
+  batch_size: 4
+  num_workers: 4
+
+  optimizer:
+    name: Adam
+    learning_rate: 0.0003
+    weight_decay: 0.0001
+
+  scheduler:
+    enabled: false
+    name: cosine
+    warmup_epochs: 5
+
+  loss:
+    edge_loss_weight: 1.0
+    node_loss_weight: 0.5
+    prompt_loss_weight: 1.0
+    mask_loss_weight: 1.0
+
+  mixed_precision: false
+  gradient_clip:
+    enabled: true
+    max_norm: 5.0
+
+validation:
+  enabled: true
+  interval: 1
+  metrics:
+    - MOTA
+    - HOTA
+    - IDF1
+    - DetA
+    - AssA
+    - IDSW
+    - MT
+    - ML
+
+logging:
+  log_dir: logs/train
+  print_interval: 20
+  save_interval: 10
+  tensorboard: true
+  wandb: false
+
+checkpoint:
+  save_dir: weights/protracker
+  resume: false
+  resume_path: null
+  save_best: true
+  monitor_metric: IDF1

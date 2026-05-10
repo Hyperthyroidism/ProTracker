@@ -1,0 +1,64 @@
+name: protracker
+channels:
+  - pytorch
+  - nvidia
+  - pyg
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.10
+  - pip
+
+  # PyTorch
+  - pytorch
+  - torchvision
+  - pytorch-cuda=11.8
+
+  # Basic scientific computing
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - pillow
+  - tqdm
+  - pyyaml
+  - scikit-learn
+
+  # Graph neural network dependencies
+  - pyg
+  - pytorch-scatter
+  - pytorch-sparse
+  - pytorch-cluster
+  - pytorch-spline-conv
+
+  # Common utilities
+  - tensorboard
+  - pip:
+      # YOLO detector
+      - ultralytics
+
+      # Tracking and assignment
+      - lap
+      - filterpy
+      - motmetrics
+
+      # SAM2 and segmentation-related dependencies
+      - hydra-core
+      - omegaconf
+      - iopath
+      - pycocotools
+
+      # Video and image processing
+      - opencv-python
+      - imageio
+      - imageio-ffmpeg
+      - av
+
+      # Experiment and logging
+      - wandb
+
+      # Utilities
+      - einops
+      - termcolor
+      - tabulate
