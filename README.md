@@ -10,6 +10,14 @@ To address these problems, ProTracker introduces a prompt-optimized tracking pip
 
 ## Framework
 
+<p align="center">
+  <img src="assets/framework.png" width="900">
+</p>
+
+<p align="center">
+  <b>Overall framework of ProTracker.</b>
+</p>
+
 The overall pipeline of ProTracker contains four main components:
 
 1. **Vessel Detection Module**  
